@@ -1,20 +1,20 @@
-import { defineConfig, devices } from '@playwright/test';
-
+import { defineConfig, devices } from "@playwright/test";
+import { STANDARD_USER_STATE_PATH } from "./tests/task_23/global-setup";
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
 // import dotenv from 'dotenv';
-// import path from 'path';
+//import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './tests/',
+  testDir: "./tests/",
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -22,24 +22,47 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 5 : 2,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
     // baseURL: 'http://localhost:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    screenshot: 'on',
-    video: 'on',
-    trace: 'on',
+    screenshot: "on",
+    video: "on",
+    trace: "on",
   },
-timeout: 60_000,
+  timeout: 60_000,
   /* Configure projects for major browsers */
   projects: [
+    // {
+    //   name: "chromium",
+    //   use: { ...devices["Desktop Chrome"] },
+    // },
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "setup-standard",
+      testMatch: '**tests/task_23/tests/setup-standard.spec.ts',
+      use: {
+        ...devices["Desktop Chrome"],
+      },
     },
+    {
+      name: "standard-tests",
+      testMatch: '**tests/task_23/tests/hw23-standard.spec.ts',
+      dependencies: ["setup-standard"],
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: STANDARD_USER_STATE_PATH,
+      },
+    },
+    {
+      name: "fixtures-tests",
+      testMatch: '**tests/task_23/tests/hw23-fixtures.spec.ts',
+      use: {
+        ...devices["Desktop Chrome"],
+      },
+    }
 
     // {
     //   name: 'firefox',
